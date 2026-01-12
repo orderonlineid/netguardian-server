@@ -19,12 +19,33 @@ app.use(express.json());
 // Database sederhana dalam memori (Ganti dengan MongoDB/Postgres untuk produksi)
 let monitoredSites = [
     // { id: '1', name: 'Google', url: 'https://google.com', status: 'PENDING', latency: 0, history: [] },
-    { id: '2', name: 'OO - API', url: 'https://api.orderonline.id', status: 'PENDING', latency: 0, history: [] },
-    { id: '3', name: 'OO - Official', url: 'https://orderonline.id', status: 'PENDING', latency: 0, history: [] },
+    { id: '2', name: 'OO - API', url: 'https://api.orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: [] },
+    { id: '3', name: 'OO - Official', url: 'https://orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: ['clear_cache'] },
 ];
 
 let eventLogs = [];
 
+// Clear Cloudflare cache function
+const clearCloudflareCache = async ({ urls: []}) => {
+    try {
+        const zoneId = process.env.CLOUDFLARE_ZONE_ID;
+        const apiKey = process.env.CLOUDFLARE_API_KEY;
+        const endpoint = `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`;
+
+        const headers = {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+        };
+
+        const response = await axios.post(endpoint,
+            { files: urls },
+            { headers: headers }
+        );
+        console.log("Cloudflare cache cleared successfully.");
+    } catch (error) {
+        console.error("Error clearing Cloudflare cache:", error.message);
+    }
+};
 // Fungsi untuk mengecek status website
 const checkWebsite = async (site) => {
     const start = Date.now();
@@ -68,6 +89,15 @@ const checkWebsite = async (site) => {
 
         // Log error
         console.log(`Status: DOWN, Error: ${error.message}`);
+
+        // Jalankan recovery plan jika ada
+        if (site.recovery_plans && site.recovery_plans.length > 0) {
+            if (site.recovery_plans.includes('clear_cache')) {
+                console.log(`Executing recovery plan: clear_cache for ${site.name}`);
+                // Simulasi pembersihan cache
+                // Di sini bisa ditambahkan kode nyata untuk membersihkan cache server atau CDN
+            }
+        }
     }
 
     // Update history (simpan 20 data terakhir)

@@ -117,6 +117,11 @@ cron.schedule('*/10 * * * * *', async () => {
     }
 });
 
+// Endpoints
+app.get('/', (req, res) => {
+    res.send('Website Monitoring Server is running.');
+});
+
 // API Endpoints
 app.get('/api/status', (req, res) => {
     res.json(monitoredSites);

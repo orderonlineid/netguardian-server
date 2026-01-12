@@ -1,6 +1,6 @@
 /**
  * Simple Website Monitoring Backend
- * Jalankan dengan: node server.js
+ * Run with: node server.js
  */
 
 const express = require('express');
@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Database sederhana dalam memori (Ganti dengan MongoDB/Postgres untuk produksi)
+// Simple in-memory database (Change to MongoDB/Postgres for production)
 let monitoredSites = [
     // { id: '1', name: 'Google', url: 'https://google.com', status: 'PENDING', latency: 0, history: [] },
     // { id: '2', name: 'OO - API', url: 'https://api.orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: [] },
@@ -47,7 +47,7 @@ const clearCloudflareCache = async ({ urls: []}) => {
     }
 };
 
-// Fungsi untuk mengecek status website
+// Function to check website status
 const checkWebsite = async (site) => {
     const start = Date.now();
     // Log
@@ -56,7 +56,7 @@ const checkWebsite = async (site) => {
         await axios.get(site.url, { timeout: 5000 });
         const latency = Date.now() - start;
 
-        // Cek perubahan status
+        // Check status change
         if (site.status === 'DOWN') {
             eventLogs.unshift({
                 id: Date.now().toString(),
@@ -91,7 +91,7 @@ const checkWebsite = async (site) => {
         // Log error
         console.log(`Status: DOWN, Error: ${error.message}`);
 
-        // Jalankan recovery plan jika ada
+        // Execute recovery plans if any
         if (site.recovery_plans && site.recovery_plans.length > 0) {
             if (site.recovery_plans.includes('clear_cache')) {
                 console.log(`Executing recovery plan: clear_cache for ${site.name}`);
@@ -100,14 +100,16 @@ const checkWebsite = async (site) => {
         }
     }
 
-    // Update history (simpan 20 data terakhir)
+    // Update history (max 20 entries)
     site.history.push(site.latency);
-    if (site.history.length > 20) site.history.shift();
+
+    const maxEntries = 20;
+    if (site.history.length > maxEntries) site.history.shift();
 
     site.lastChecked = new Date();
 };
 
-// Scheduler: Jalankan pengecekan setiap 10 detik
+// Scheduler: Check all websites every 10 seconds
 cron.schedule('*/10 * * * * *', async () => {
     console.log('Running health checks...');
     for (let site of monitoredSites) {
@@ -136,7 +138,7 @@ app.post('/api/sites', (req, res) => {
         lastChecked: null
     };
     monitoredSites.push(newSite);
-    // Cek segera setelah ditambah
+    // Initial check
     checkWebsite(newSite);
     res.status(201).json(newSite);
 });

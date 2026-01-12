@@ -19,7 +19,7 @@ app.use(express.json());
 // Database sederhana dalam memori (Ganti dengan MongoDB/Postgres untuk produksi)
 let monitoredSites = [
     // { id: '1', name: 'Google', url: 'https://google.com', status: 'PENDING', latency: 0, history: [] },
-    { id: '2', name: 'OO - API', url: 'https://api.orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: [] },
+    // { id: '2', name: 'OO - API', url: 'https://api.orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: [] },
     { id: '3', name: 'OO - Official', url: 'https://orderonline.id', status: 'PENDING', latency: 0, history: [], recovery_plans: ['clear_cache'] },
 ];
 

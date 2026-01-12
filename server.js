@@ -46,6 +46,7 @@ const clearCloudflareCache = async ({ urls: []}) => {
         console.error("Error clearing Cloudflare cache:", error.message);
     }
 };
+
 // Fungsi untuk mengecek status website
 const checkWebsite = async (site) => {
     const start = Date.now();
@@ -94,8 +95,7 @@ const checkWebsite = async (site) => {
         if (site.recovery_plans && site.recovery_plans.length > 0) {
             if (site.recovery_plans.includes('clear_cache')) {
                 console.log(`Executing recovery plan: clear_cache for ${site.name}`);
-                // Simulasi pembersihan cache
-                // Di sini bisa ditambahkan kode nyata untuk membersihkan cache server atau CDN
+                await clearCloudflareCache({ urls: [site.url] });
             }
         }
     }

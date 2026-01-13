@@ -26,8 +26,9 @@ let monitoredSites = [
 let eventLogs = [];
 
 // Clear Cloudflare cache function
-const clearCloudflareCache = async ({ urls: []}) => {
+const clearCloudflareCache = async (payloads) => {
     try {
+        const urls = payloads.urls || [];
         const zoneId = process.env.CLOUDFLARE_ZONE_ID;
         const apiKey = process.env.CLOUDFLARE_API_KEY;
         const endpoint = `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`;
@@ -41,7 +42,8 @@ const clearCloudflareCache = async ({ urls: []}) => {
             { files: urls },
             { headers: headers }
         );
-        console.log("Cloudflare cache cleared successfully.");
+
+        console.log("Cloudflare cache cleared successfully.", response);
     } catch (error) {
         console.error("Error clearing Cloudflare cache:", error.message);
     }
